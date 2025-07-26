@@ -59,9 +59,9 @@
     "zod": "^3.24.4"
   },
   "scripts": {
-    "start": "cd frontend && craco start",
-    "build": "cd frontend && craco build",
-    "test": "cd frontend && craco test"
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test"
   },
   "browserslist": {
     "production": [
