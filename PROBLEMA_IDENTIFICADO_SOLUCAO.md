@@ -4,7 +4,7 @@
 
 O `REACT_APP_BACKEND_URL` no `.env` está apontando para:
 ```
-https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com
+https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com
 ```
 
 **Esta URL só funciona dentro do ambiente Emergent!**

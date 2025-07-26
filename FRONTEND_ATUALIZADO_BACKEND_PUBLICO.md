@@ -3,7 +3,7 @@
 ## ✅ **MUDANÇA REALIZADA:**
 
 **Arquivo:** `/frontend/.env`
-**Antes:** `REACT_APP_BACKEND_URL=https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com`
+**Antes:** `REACT_APP_BACKEND_URL=https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com`
 **Agora:** `REACT_APP_BACKEND_URL=https://zenpress-application.onrender.com`
 
 ## 🚀 **BUILD CONCLUÍDO:**

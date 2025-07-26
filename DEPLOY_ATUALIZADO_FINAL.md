@@ -4,7 +4,7 @@
 
 ### 1. **Backend Funcionando 100%**
 - ✅ Dependência `emergentintegrations` adicionada
-- ✅ API respondendo: `https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com/api/`
+- ✅ API respondendo: `https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com/api/`
 - ✅ Todas as técnicas carregando corretamente
 
 ### 2. **Texto "até 2 horas" Removido**

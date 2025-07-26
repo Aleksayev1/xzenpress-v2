@@ -13,7 +13,7 @@ class ZenPressAuthTest:
     """Teste específico para sistema de autenticação do ZenPress"""
     
     # Base URL do backend
-    BASE_URL = "https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com/api"
+    BASE_URL = "https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com/api"
     
     # Dados de teste conforme solicitado
     test_user = {

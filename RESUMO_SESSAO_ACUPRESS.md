@@ -53,7 +53,7 @@
 
 ### 3. **GERAR NOVO APK:**
 - https://www.pwabuilder.com
-- URL: https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com
+- URL: https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com
 - Novo nome: "AcuPress"
 - Download APK atualizado
 
@@ -74,7 +74,7 @@
 - `/app/frontend/public/manifest.json` (atualizado)
 
 ## 🌐 **URLs IMPORTANTES:**
-- **App URL:** https://922a102f-6ecf-4e8b-a639-f0d7e84c3015.preview.emergentagent.com
+- **App URL:** https://85161f8b-a8da-4f9e-a441-f9d7b18c1ab0.preview.emergentagent.com
 - **PWA Builder:** https://www.pwabuilder.com
 - **Play Console:** https://play.google.com/console/signup
 - **Gmail Signup:** https://accounts.google.com/signup
