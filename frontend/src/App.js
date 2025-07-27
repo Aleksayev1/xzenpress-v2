@@ -12,6 +12,8 @@ import PaymentPage from "./components/PaymentPage";
 import ConsultationPage from "./components/ConsultationPage";
 import DeveloperDashboard from "./components/DeveloperDashboard";
 import Navigation from "./components/Navigation";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   return (
