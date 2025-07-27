@@ -1,5 +1,7 @@
 import os
 import jwt
+import secrets
+import smtplib
 from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
@@ -8,6 +10,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from motor.motor_asyncio import AsyncIOMotorClient
 from models import User, UserResponse
 from dotenv import load_dotenv
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Load environment variables
 load_dotenv()
