@@ -603,17 +603,9 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Correção Dependência emergentintegrations"
-    - "API de Autenticação (registro/login)"
-    - "API de Técnicas de Acupressão"
-    - "API de Sessões de Prática"
-    - "API de Favoritos"
-    - "API de Estatísticas e Premium"
-    - "API de Criação de Avaliações"
-    - "Sistema de Pagamento Crypto Simplificado"
-    - "Projeto Expo Mobile App - Estrutura Base"
+    - "Sistema de Pagamentos Stripe"
   stuck_tasks: 
-    - "Investigação Problema Pagamento Cartão"
+    - "Sistema de Pagamentos Stripe"
   test_all: false
   test_priority: "high_first"
 
