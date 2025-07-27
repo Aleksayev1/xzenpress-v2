@@ -144,6 +144,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateUser,
+    forgotPassword,
+    resetPassword,
     isAuthenticated: !!token && !!user,
     isPremium: user?.is_premium || false
   };
