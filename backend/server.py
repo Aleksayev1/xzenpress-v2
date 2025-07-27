@@ -98,6 +98,89 @@ async def login(user_data: UserLogin):
         user=UserResponse(**user)
     )
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(email_data: dict):
+    """Solicita reset de senha - envia email com token"""
+    email = email_data.get("email")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email é obrigatório"
+        )
+    
+    # Verificar se usuário existe
+    user = await db.users.find_one({"email": email})
+    if not user:
+        # Por segurança, sempre retorna sucesso (não revela se email existe)
+        return {"message": "Se o email existir, você receberá instruções para reset"}
+    
+    # Criar token de reset
+    from auth import create_reset_token, send_reset_email
+    reset_token = create_reset_token(email)
+    
+    # Salvar token no banco com expiração
+    await db.password_resets.insert_one({
+        "email": email,
+        "token": reset_token,
+        "created_at": datetime.utcnow(),
+        "expires_at": datetime.utcnow() + timedelta(hours=1),
+        "used": False
+    })
+    
+    # Enviar email (versão simplificada)
+    await send_reset_email(email, reset_token)
+    
+    return {"message": "Se o email existir, você receberá instruções para reset"}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(reset_data: dict):
+    """Confirma reset de senha com token"""
+    token = reset_data.get("token")
+    new_password = reset_data.get("password")
+    
+    if not token or not new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token e nova senha são obrigatórios"
+        )
+    
+    # Verificar token
+    from auth import verify_reset_token, get_password_hash
+    email = verify_reset_token(token)
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token inválido ou expirado"
+        )
+    
+    # Verificar se token não foi usado
+    reset_record = await db.password_resets.find_one({
+        "token": token,
+        "used": False,
+        "expires_at": {"$gt": datetime.utcnow()}
+    })
+    
+    if not reset_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token inválido, expirado ou já utilizado"
+        )
+    
+    # Atualizar senha do usuário
+    hashed_password = get_password_hash(new_password)
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {"password_hash": hashed_password}}
+    )
+    
+    # Marcar token como usado
+    await db.password_resets.update_one(
+        {"token": token},
+        {"$set": {"used": True, "used_at": datetime.utcnow()}}
+    )
+    
+    return {"message": "Senha alterada com sucesso"}
+
 # User endpoints
 @api_router.get("/users/me", response_model=UserResponse)
 async def get_current_user_info(current_user: UserResponse = Depends(get_current_user)):
