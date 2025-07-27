@@ -50,6 +50,49 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def create_reset_token(email: str) -> str:
+    """Cria token para reset de senha (válido por 1 hora)"""
+    data = {
+        "email": email,
+        "type": "password_reset",
+        "exp": datetime.utcnow() + timedelta(hours=1)
+    }
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
+def verify_reset_token(token: str) -> Optional[str]:
+    """Verifica token de reset e retorna email se válido"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "password_reset":
+            return None
+        return payload.get("email")
+    except jwt.PyJWTError:
+        return None
+
+async def send_reset_email(email: str, reset_token: str):
+    """Envia email de reset de senha (versão simplificada)"""
+    try:
+        # Para desenvolvimento, vamos apenas logar o token
+        # Em produção, você configuraria SMTP real
+        reset_url = f"https://xzenpress.com/reset-password?token={reset_token}"
+        
+        print(f"🔑 RESET DE SENHA SOLICITADO:")
+        print(f"📧 Email: {email}")
+        print(f"🔗 Link de reset: {reset_url}")
+        print(f"⏰ Válido por: 1 hora")
+        
+        # TODO: Implementar envio real de email
+        # smtp_server = "smtp.gmail.com"
+        # smtp_port = 587
+        # smtp_user = os.environ.get("SMTP_USER")
+        # smtp_pass = os.environ.get("SMTP_PASS")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao enviar email de reset: {str(e)}")
+        return False
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> UserResponse:
     try:
         token = credentials.credentials
