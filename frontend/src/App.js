@@ -32,6 +32,8 @@ function App() {
             <Route path="/payment/cancel" element={<PaymentPage />} />
             <Route path="/consultation" element={<ConsultationPage />} />
             <Route path="/admin/analytics" element={<DeveloperDashboard />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </BrowserRouter>
       </div>
