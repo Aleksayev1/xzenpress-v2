@@ -335,9 +335,16 @@ const Home = () => {
 
       {/* Header Hero Section */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-          {t('home.hero.title', 'Alívio Natural da Dor')}
-        </h1>
+        <div className="flex flex-col items-center mb-4">
+          <img 
+            src="https://customer-assets.emergentagent.com/job_zenpress-update/artifacts/uqd5r5cc_XZP%20logo.jpg" 
+            alt="XZenPress Logo" 
+            className="h-20 w-auto mb-4 rounded-lg shadow-lg"
+          />
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            {t('home.hero.title', 'Alívio Natural da Dor')}
+          </h1>
+        </div>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
           {t('home.hero.subtitle', 'Descubra técnicas milenares de acupressão e craniopuntura para tratar dores de cabeça, dores musculares, problemas digestivos e fortalecer sua imunidade')}
         </p>
