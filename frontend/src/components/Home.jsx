@@ -649,9 +649,15 @@ const Home = () => {
             <p className="text-sm text-green-600 mb-4">
               {t('techniques.quickActions.complex.description', 'Dores crônicas ou condições que não melhoram? Fale com especialista.')}
             </p>
-            <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
-              <Link to="/consultation">{t('techniques.quickActions.complex.button', 'Consulta WhatsApp')}</Link>
-            </Button>
+            {user && user.is_premium && user.has_specialist_consultation ? (
+              <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
+                <Link to="/consultation">{t('techniques.quickActions.complex.button', 'Consulta Especializada Premium')}</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                <Link to="/payment">Fazer Upgrade Premium</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
