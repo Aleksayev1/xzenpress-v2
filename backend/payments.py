@@ -62,6 +62,7 @@ async def create_checkout_session(
             currency="brl",
             success_url=success_url,
             cancel_url=cancel_url,
+            customer_email=current_user.email,
             metadata=metadata
         )
         
