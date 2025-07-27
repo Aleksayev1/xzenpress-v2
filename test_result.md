@@ -125,18 +125,18 @@ user_problem_statement: "Construir um app para tirar a dor das pessoas utilizand
 backend:
   - task: "API de Autenticação (registro/login)"
     implemented: true
-    working: false
+    working: true
     file: "server.py, auth.py, models.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Backend criado com endpoints de autenticação, modelos User, sistema JWT. Precisa testar endpoints de registro e login."
       - working: true
         agent: "testing"
-        comment: "Testado com sucesso os endpoints de registro e login. Autenticação JWT funciona corretamente. Usuário pode se registrar, fazer login e obter informações do perfil."
+        comment: "Testado com sucesso os endpoints de registr1+o e login. Autenticação JWT funciona corretamente. Usuário pode se registrar, fazer login e obter informações do perfil."
       - working: true
         agent: "testing"
         comment: "✅ TESTE COMPLETO REALIZADO: Sistema de autenticação funcionando perfeitamente. Registro de usuário (POST /api/auth/register), login (POST /api/auth/login), obtenção de perfil (GET /api/users/me), validação de credenciais inválidas, e JWT token funcionando corretamente. Minor: Alguns endpoints retornam 403 em vez de 401 para casos não autenticados, mas funcionalidade principal está perfeita."
@@ -146,6 +146,9 @@ backend:
       - working: false
         agent: "main"
         comment: "❌ USUÁRIO REPORTA: Cadastro e login não funcionam na página. Precisa investigar se é problema de backend, frontend ou conectividade. Testando backend primeiro."
+      - working: true
+        agent: "main"
+        comment: "✅ PROBLEMA RESOLVIDO! Usuário confirma que login está funcionando novamente. Sistema de autenticação operacional."
 
   - task: "API de Técnicas de Acupressão"
     implemented: true
