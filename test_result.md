@@ -409,8 +409,8 @@ frontend:
   - task: "Investigação Problema Pagamento Cartão"
     implemented: true
     working: false
-    file: "payments.py, .env"
-    stuck_count: 1
+    file: "payments.py, stripe_mock.py"
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -420,6 +420,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "✅ TESTADO: Confirmado que Stripe checkout falha com erro 500 devido à chave placeholder (sk_test_51OqJ8VGXhN5bPBbXYZ123). Endpoint /api/payments/v1/products funciona normalmente, mas /api/payments/v1/checkout/session falha conforme esperado. Sistema crypto payments funciona perfeitamente como alternativa. SOLUÇÃO: Substituir por chave Stripe válida para ativar pagamentos por cartão."
+      - working: false
+        agent: "testing"
+        comment: "🔴 DIAGNÓSTICO CRÍTICO COMPLETO: Problema NÃO é chave Stripe placeholder, mas erro na implementação stripe_mock.py. Erro 500 'price_id Field required' indica que CheckoutSessionRequest está esperando campo price_id que não está sendo enviado. Chave Stripe válida (sk_test_51Rgt3iQItINdtKEV...) está configurada corretamente. SOLUÇÃO: Corrigir stripe_mock.py para aceitar amount/currency em vez de price_id, ou implementar Stripe real. Sistema crypto payments (PIX/BTC/USDT) funciona perfeitamente como alternativa."
 
   - task: "API de Criação de Avaliações"
     implemented: true
