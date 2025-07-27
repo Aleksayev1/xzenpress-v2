@@ -2497,10 +2497,10 @@ class AcuPressaoAPITest(unittest.TestCase):
         """🎯 CRÍTICO: Criar usuário para teste de reset de senha"""
         print("\n🎯 TESTE CRÍTICO: Criando usuário para teste de reset de senha")
         
-        # Dados de teste conforme especificado no review_request
+        # Dados de teste conforme especificado no review_request (com timestamp para unicidade)
         reset_test_user = {
             "name": "Reset Test User",
-            "email": "reset_test@example.com",
+            "email": f"reset_test_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com",
             "password": "OldPassword123"
         }
         
