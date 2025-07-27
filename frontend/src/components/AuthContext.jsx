@@ -103,6 +103,39 @@ export const AuthProvider = ({ children }) => {
     return null;
   };
 
+  const forgotPassword = async (email) => {
+    try {
+      const response = await axios.post(`${API}/auth/forgot-password`, { email });
+      return {
+        success: true,
+        message: response.data.message
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Erro ao solicitar reset de senha'
+      };
+    }
+  };
+
+  const resetPassword = async (token, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/reset-password`, {
+        token,
+        password
+      });
+      return {
+        success: true,
+        message: response.data.message
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Erro ao redefinir senha'
+      };
+    }
+  };
+
   const value = {
     user,
     token,
