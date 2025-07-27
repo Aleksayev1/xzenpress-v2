@@ -698,9 +698,15 @@ const Home = () => {
             <p className="text-sm text-red-600 mb-4">
               {t('home.mentalHealth.banners.septicemia.description', 'Técnicas complementares para suporte ao sistema imunológico')}
             </p>
-            <Button asChild size="sm" className="bg-red-600 hover:bg-red-700">
-              <Link to="/payment">Acessar Premium</Link>
-            </Button>
+            {user && user.is_premium ? (
+              <Button asChild size="sm" className="bg-red-600 hover:bg-red-700">
+                <Link to="/category/septicemia">Acessar Conteúdo</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="bg-red-600 hover:bg-red-700">
+                <Link to="/payment">Acessar Premium</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
