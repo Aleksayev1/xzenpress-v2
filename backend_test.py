@@ -1600,6 +1600,171 @@ class AcuPressaoAPITest(unittest.TestCase):
         print(f"Spotify auth URL generated successfully")
 
     # ========================================
+    # CRITICAL STRIPE PAYMENT TESTS - REVIEW REQUEST FOCUS
+    # ========================================
+    
+    def test_62_stripe_checkout_session_corrected(self):
+        """🔴 CRITICAL TEST: Stripe checkout session with corrected implementation"""
+        print("\n🔴 CRITICAL TEST: Testing corrected Stripe checkout session")
+        print("Testing data from review request:")
+        print("- product_id: premium_monthly")
+        print("- product_type: premium_subscription") 
+        print("- quantity: 1")
+        print("- origin_url: https://xzenpress.com")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Use exact test data from review request
+        checkout_data = {
+            "product_id": "premium_monthly",
+            "product_type": "premium_subscription",
+            "quantity": 1,
+            "origin_url": "https://xzenpress.com"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/payments/v1/checkout/session",
+            headers=headers,
+            json=checkout_data
+        )
+        
+        print(f"🔴 Stripe checkout response: {response.status_code}")
+        print(f"Response text: {response.text}")
+        
+        if response.status_code == 200:
+            print("✅ SUCCESS: Stripe checkout session created successfully!")
+            data = response.json()
+            
+            # Verify response structure
+            self.assertIn("url", data)
+            self.assertIn("session_id", data)
+            
+            # Save session ID for status check
+            self.__class__.stripe_session_id = data["session_id"]
+            
+            print(f"✅ Checkout URL: {data['url']}")
+            print(f"✅ Session ID: {data['session_id']}")
+            
+            # Verify URL is valid
+            self.assertTrue(data["url"].startswith("https://"))
+            
+        elif response.status_code == 500:
+            print("❌ FAILED: Stripe checkout still failing with 500 error")
+            data = response.json()
+            error_detail = data.get("detail", "Unknown error")
+            print(f"Error details: {error_detail}")
+            
+            # Check if it's the specific "price_id Field required" error
+            if "price_id" in error_detail.lower():
+                print("🔴 CONFIRMED: 'price_id Field required' error still present")
+                print("🔧 DIAGNOSIS: stripe_mock.py still expects price_id instead of amount")
+                self.fail("Stripe checkout still has 'price_id Field required' error - correction not implemented properly")
+            else:
+                print(f"🔴 DIFFERENT ERROR: {error_detail}")
+                self.fail(f"Stripe checkout failed with different error: {error_detail}")
+        else:
+            print(f"❌ UNEXPECTED STATUS: {response.status_code}")
+            self.fail(f"Unexpected response status: {response.status_code}")
+
+    def test_63_stripe_checkout_status_check(self):
+        """Test Stripe checkout status check after session creation"""
+        print("\n--- Testing Stripe checkout status check ---")
+        
+        if not hasattr(self.__class__, 'stripe_session_id'):
+            self.skipTest("No Stripe session ID available from previous test")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        response = requests.get(
+            f"{self.BASE_URL}/payments/v1/checkout/status/{self.stripe_session_id}",
+            headers=headers
+        )
+        
+        print(f"Stripe status check response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ SUCCESS: Stripe status check working")
+            data = response.json()
+            
+            # Verify response structure
+            self.assertIn("status", data)
+            self.assertIn("payment_status", data)
+            self.assertIn("session_id", data)
+            
+            print(f"✅ Status: {data['status']}")
+            print(f"✅ Payment Status: {data['payment_status']}")
+            print(f"✅ Session ID: {data['session_id']}")
+            
+        else:
+            print(f"❌ FAILED: Status check failed with {response.status_code}")
+            print(f"Response: {response.text}")
+
+    def test_64_verify_stripe_mock_amount_support(self):
+        """Verify stripe_mock.py supports amount instead of price_id"""
+        print("\n--- Verifying stripe_mock.py amount support ---")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Test with different amounts to verify amount-based pricing
+        test_cases = [
+            {"product_id": "premium_monthly", "expected_amount": 19.90},
+            {"product_id": "premium_annual", "expected_amount": 199.00}
+        ]
+        
+        for test_case in test_cases:
+            checkout_data = {
+                "product_id": test_case["product_id"],
+                "product_type": "premium_subscription",
+                "quantity": 1,
+                "origin_url": "https://xzenpress.com"
+            }
+            
+            response = requests.post(
+                f"{self.BASE_URL}/payments/v1/checkout/session",
+                headers=headers,
+                json=checkout_data
+            )
+            
+            print(f"Testing {test_case['product_id']}: {response.status_code}")
+            
+            if response.status_code == 200:
+                print(f"✅ {test_case['product_id']} works with amount-based pricing")
+            else:
+                print(f"❌ {test_case['product_id']} failed: {response.text}")
+
+    def test_65_stripe_products_endpoint_verification(self):
+        """Verify Stripe products endpoint returns correct product data"""
+        print("\n--- Verifying Stripe products endpoint ---")
+        
+        response = requests.get(f"{self.BASE_URL}/payments/v1/products")
+        
+        print(f"Products endpoint response: {response.status_code}")
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        # Should return list of products
+        self.assertIsInstance(data, list)
+        self.assertGreater(len(data), 0)
+        
+        # Find premium_monthly product
+        premium_monthly = None
+        for product in data:
+            if product["id"] == "premium_monthly":
+                premium_monthly = product
+                break
+        
+        self.assertIsNotNone(premium_monthly, "premium_monthly product not found")
+        
+        # Verify product structure matches test data
+        self.assertEqual(premium_monthly["id"], "premium_monthly")
+        self.assertEqual(premium_monthly["type"], "subscription")
+        self.assertEqual(premium_monthly["price"], 19.90)
+        
+        print(f"✅ Found premium_monthly product: R$ {premium_monthly['price']}")
+        print(f"✅ Products endpoint working correctly")
+
+    # ========================================
     # CRITICAL PAYMENT SYSTEM TESTS
     # ========================================
     
