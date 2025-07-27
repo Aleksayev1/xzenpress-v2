@@ -1599,5 +1599,415 @@ class AcuPressaoAPITest(unittest.TestCase):
         
         print(f"Spotify auth URL generated successfully")
 
+    # ========================================
+    # CRITICAL PAYMENT SYSTEM TESTS
+    # ========================================
+    
+    def test_62_stripe_create_checkout_session_failure(self):
+        """Test Stripe checkout session creation (CRITICAL - should fail with placeholder key)"""
+        print("\n🔴 CRITICAL TEST: Stripe checkout session creation")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        checkout_data = {
+            "product_id": "premium_monthly",
+            "product_type": "premium_subscription",
+            "quantity": 1,
+            "origin_url": "https://example.com"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/payments/v1/checkout/session",
+            headers=headers,
+            json=checkout_data
+        )
+        
+        print(f"🔴 Stripe checkout response: {response.status_code}")
+        print(f"Response: {response.text}")
+        
+        # This should fail due to placeholder Stripe key
+        if response.status_code == 500:
+            print("✅ EXPECTED: Stripe checkout fails with placeholder key")
+            data = response.json()
+            self.assertIn("detail", data)
+            print(f"Error details: {data['detail']}")
+        else:
+            print(f"❌ UNEXPECTED: Expected 500 error, got {response.status_code}")
+            self.fail(f"Expected Stripe checkout to fail with 500, got {response.status_code}")
+
+    def test_63_crypto_payment_pix_creation(self):
+        """Test PIX payment creation (CRITICAL - user reported issue)"""
+        print("\n🔴 CRITICAL TEST: PIX payment creation")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        payment_data = {
+            "subscription_type": "premium_monthly",
+            "crypto_currency": "PIX"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/crypto/create-payment",
+            headers=headers,
+            json=payment_data
+        )
+        
+        print(f"🔴 PIX payment creation response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ PIX payment creation successful")
+            data = response.json()
+            
+            # Verify PIX-specific fields
+            self.assertEqual(data["crypto_currency"], "PIX")
+            self.assertIn("wallet_address", data)
+            self.assertEqual(data["wallet_address"], "aleksayev@gmail.com")
+            self.assertEqual(data["amount_brl"], 29.90)
+            self.assertIn("qr_code", data)
+            self.assertIn("instructions", data)
+            
+            # Save for further testing
+            self.__class__.pix_transaction_id = data["transaction_id"]
+            
+            print(f"PIX Key: {data['wallet_address']}")
+            print(f"Amount: R$ {data['amount_brl']}")
+            print("✅ PIX payment system working correctly")
+        else:
+            print(f"❌ PIX payment creation failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"PIX payment creation failed with status {response.status_code}")
+
+    def test_64_crypto_payment_btc_creation(self):
+        """Test Bitcoin payment creation (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: Bitcoin payment creation")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        payment_data = {
+            "subscription_type": "premium_monthly",
+            "crypto_currency": "BTC"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/crypto/create-payment",
+            headers=headers,
+            json=payment_data
+        )
+        
+        print(f"🔴 BTC payment creation response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Bitcoin payment creation successful")
+            data = response.json()
+            
+            # Verify BTC-specific fields
+            self.assertEqual(data["crypto_currency"], "BTC")
+            self.assertIn("wallet_address", data)
+            self.assertEqual(data["amount_usd"], 5.99)
+            self.assertIn("qr_code", data)
+            self.assertIn("instructions", data)
+            
+            # Save for further testing
+            self.__class__.btc_transaction_id = data["transaction_id"]
+            
+            print(f"BTC Address: {data['wallet_address']}")
+            print(f"Amount: ${data['amount_usd']} USD")
+            print("✅ Bitcoin payment system working correctly")
+        else:
+            print(f"❌ Bitcoin payment creation failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"Bitcoin payment creation failed with status {response.status_code}")
+
+    def test_65_crypto_payment_usdt_creation(self):
+        """Test USDT payment creation (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: USDT payment creation")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        payment_data = {
+            "subscription_type": "premium_yearly",
+            "crypto_currency": "USDT_TRC20"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/crypto/create-payment",
+            headers=headers,
+            json=payment_data
+        )
+        
+        print(f"🔴 USDT payment creation response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ USDT payment creation successful")
+            data = response.json()
+            
+            # Verify USDT-specific fields
+            self.assertEqual(data["crypto_currency"], "USDT_TRC20")
+            self.assertIn("wallet_address", data)
+            self.assertEqual(data["amount_usd"], 59.99)
+            self.assertEqual(data["amount_brl"], 299.90)
+            self.assertIn("qr_code", data)
+            
+            # Save for further testing
+            self.__class__.usdt_transaction_id = data["transaction_id"]
+            
+            print(f"USDT Address: {data['wallet_address']}")
+            print(f"Amount: ${data['amount_usd']} USD / R$ {data['amount_brl']}")
+            print("✅ USDT payment system working correctly")
+        else:
+            print(f"❌ USDT payment creation failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"USDT payment creation failed with status {response.status_code}")
+
+    def test_66_payment_without_authentication(self):
+        """Test payment creation without authentication (CRITICAL - should fail)"""
+        print("\n🔴 CRITICAL TEST: Payment without authentication")
+        
+        payment_data = {
+            "subscription_type": "premium_monthly",
+            "crypto_currency": "PIX"
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/crypto/create-payment",
+            json=payment_data
+        )
+        
+        print(f"🔴 Unauthenticated payment response: {response.status_code}")
+        
+        if response.status_code == 401:
+            print("✅ EXPECTED: Payment creation blocked without authentication")
+        else:
+            print(f"❌ SECURITY ISSUE: Expected 401, got {response.status_code}")
+            self.fail(f"Payment should require authentication, got {response.status_code}")
+
+    def test_67_payment_status_check(self):
+        """Test payment status checking (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: Payment status checking")
+        
+        if not hasattr(self.__class__, 'pix_transaction_id'):
+            self.skipTest("No PIX transaction ID available")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        response = requests.get(
+            f"{self.BASE_URL}/crypto/payment-status/{self.pix_transaction_id}",
+            headers=headers
+        )
+        
+        print(f"🔴 Payment status response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Payment status check successful")
+            data = response.json()
+            
+            # Verify status response structure
+            required_fields = ["transaction_id", "status", "status_message", "created_at", "expires_at", "crypto_currency", "amount_usd"]
+            for field in required_fields:
+                self.assertIn(field, data)
+            
+            self.assertEqual(data["transaction_id"], self.pix_transaction_id)
+            self.assertEqual(data["status"], "pending")
+            
+            print(f"Status: {data['status']} - {data['status_message']}")
+            print("✅ Payment status system working correctly")
+        else:
+            print(f"❌ Payment status check failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"Payment status check failed with status {response.status_code}")
+
+    def test_68_payment_confirmation_flow(self):
+        """Test payment confirmation flow (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: Payment confirmation flow")
+        
+        if not hasattr(self.__class__, 'pix_transaction_id'):
+            self.skipTest("No PIX transaction ID available")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        confirmation_data = {
+            "tx_hash": "PIX_CONFIRMATION_12345",
+            "message": "Pagamento PIX realizado via banco. Aguardando confirmação."
+        }
+        
+        response = requests.post(
+            f"{self.BASE_URL}/crypto/confirm-payment/{self.pix_transaction_id}",
+            headers=headers,
+            json=confirmation_data
+        )
+        
+        print(f"🔴 Payment confirmation response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Payment confirmation successful")
+            data = response.json()
+            
+            self.assertEqual(data["status"], "confirmed")
+            self.assertIn("message", data)
+            
+            print(f"Confirmation message: {data['message']}")
+            print("✅ Payment confirmation system working correctly")
+        else:
+            print(f"❌ Payment confirmation failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"Payment confirmation failed with status {response.status_code}")
+
+    def test_69_user_payment_history(self):
+        """Test user payment history (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: User payment history")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        response = requests.get(
+            f"{self.BASE_URL}/crypto/my-payments",
+            headers=headers
+        )
+        
+        print(f"🔴 Payment history response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Payment history retrieval successful")
+            data = response.json()
+            
+            self.assertIn("payments", data)
+            self.assertIn("total", data)
+            self.assertGreater(data["total"], 0)
+            
+            print(f"Found {data['total']} payments in history")
+            
+            # Verify our payments are in the list
+            payment_ids = [p["transaction_id"] for p in data["payments"]]
+            if hasattr(self.__class__, 'pix_transaction_id'):
+                self.assertIn(self.pix_transaction_id, payment_ids)
+                print("✅ PIX payment found in history")
+            
+            print("✅ Payment history system working correctly")
+        else:
+            print(f"❌ Payment history retrieval failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"Payment history retrieval failed with status {response.status_code}")
+
+    def test_70_crypto_currencies_endpoint(self):
+        """Test crypto currencies endpoint (CRITICAL)"""
+        print("\n🔴 CRITICAL TEST: Crypto currencies endpoint")
+        
+        response = requests.get(f"{self.BASE_URL}/crypto/currencies")
+        
+        print(f"🔴 Crypto currencies response: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ Crypto currencies endpoint successful")
+            data = response.json()
+            
+            # Verify expected currencies are available
+            expected_currencies = ["BTC", "USDT_TRC20", "USDT_ERC20", "PIX"]
+            for currency in expected_currencies:
+                self.assertIn(currency, data)
+                self.assertIn("name", data[currency])
+                self.assertIn("description", data[currency])
+            
+            # Verify PIX is properly configured
+            pix_info = data["PIX"]
+            self.assertEqual(pix_info["type"], "bank_transfer")
+            self.assertEqual(pix_info["country"], "Brasil")
+            
+            print("✅ All payment methods properly configured")
+            print(f"Available currencies: {list(data.keys())}")
+        else:
+            print(f"❌ Crypto currencies endpoint failed: {response.status_code}")
+            print(f"Error: {response.text}")
+            self.fail(f"Crypto currencies endpoint failed with status {response.status_code}")
+
+    def test_71_payment_system_integration_test(self):
+        """Test complete payment system integration (CRITICAL)"""
+        print("\n🔴 CRITICAL INTEGRATION TEST: Complete payment flow")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Step 1: Create payment
+        print("Step 1: Creating payment...")
+        payment_data = {
+            "subscription_type": "premium_monthly",
+            "crypto_currency": "PIX"
+        }
+        
+        create_response = requests.post(
+            f"{self.BASE_URL}/crypto/create-payment",
+            headers=headers,
+            json=payment_data
+        )
+        
+        if create_response.status_code != 200:
+            self.fail(f"Payment creation failed: {create_response.status_code}")
+        
+        payment_info = create_response.json()
+        transaction_id = payment_info["transaction_id"]
+        print(f"✅ Payment created: {transaction_id}")
+        
+        # Step 2: Check initial status
+        print("Step 2: Checking initial status...")
+        status_response = requests.get(
+            f"{self.BASE_URL}/crypto/payment-status/{transaction_id}",
+            headers=headers
+        )
+        
+        if status_response.status_code != 200:
+            self.fail(f"Status check failed: {status_response.status_code}")
+        
+        status_info = status_response.json()
+        self.assertEqual(status_info["status"], "pending")
+        print(f"✅ Initial status: {status_info['status']}")
+        
+        # Step 3: Confirm payment
+        print("Step 3: Confirming payment...")
+        confirmation_data = {
+            "tx_hash": "INTEGRATION_TEST_HASH",
+            "message": "Integration test payment confirmation"
+        }
+        
+        confirm_response = requests.post(
+            f"{self.BASE_URL}/crypto/confirm-payment/{transaction_id}",
+            headers=headers,
+            json=confirmation_data
+        )
+        
+        if confirm_response.status_code != 200:
+            self.fail(f"Payment confirmation failed: {confirm_response.status_code}")
+        
+        confirm_info = confirm_response.json()
+        self.assertEqual(confirm_info["status"], "confirmed")
+        print(f"✅ Payment confirmed: {confirm_info['message']}")
+        
+        # Step 4: Verify updated status
+        print("Step 4: Verifying updated status...")
+        final_status_response = requests.get(
+            f"{self.BASE_URL}/crypto/payment-status/{transaction_id}",
+            headers=headers
+        )
+        
+        if final_status_response.status_code != 200:
+            self.fail(f"Final status check failed: {final_status_response.status_code}")
+        
+        final_status = final_status_response.json()
+        self.assertEqual(final_status["status"], "user_confirmed")
+        print(f"✅ Final status: {final_status['status']}")
+        
+        # Step 5: Check payment appears in history
+        print("Step 5: Checking payment history...")
+        history_response = requests.get(
+            f"{self.BASE_URL}/crypto/my-payments",
+            headers=headers
+        )
+        
+        if history_response.status_code != 200:
+            self.fail(f"Payment history check failed: {history_response.status_code}")
+        
+        history_info = history_response.json()
+        payment_ids = [p["transaction_id"] for p in history_info["payments"]]
+        self.assertIn(transaction_id, payment_ids)
+        print(f"✅ Payment found in history")
+        
+        print("🎉 COMPLETE PAYMENT SYSTEM INTEGRATION TEST PASSED!")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
