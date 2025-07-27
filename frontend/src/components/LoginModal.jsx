@@ -160,6 +160,21 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Entrar
               </Button>
+              
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-600 hover:text-blue-800 p-0 h-auto"
+                  onClick={() => {
+                    handleClose();
+                    window.location.href = '/forgot-password';
+                  }}
+                >
+                  Esqueci minha senha
+                </Button>
+              </div>
             </form>
           </TabsContent>
 
