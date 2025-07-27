@@ -675,9 +675,15 @@ const Home = () => {
             <p className="text-sm text-yellow-600 mb-4">
               {t('home.mentalHealth.banners.atm.description', 'Protocolo especializado para disfunção temporomandibular')}
             </p>
-            <Button asChild size="sm" className="bg-yellow-600 hover:bg-yellow-700">
-              <Link to="/payment">Acessar Premium</Link>
-            </Button>
+            {user && user.is_premium ? (
+              <Button asChild size="sm" className="bg-yellow-600 hover:bg-yellow-700">
+                <Link to="/category/atm">Acessar Conteúdo</Link>
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="bg-yellow-600 hover:bg-yellow-700">
+                <Link to="/payment">Acessar Premium</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
 
