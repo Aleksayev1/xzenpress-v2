@@ -259,6 +259,30 @@ async def confirm_crypto_payment(
             }
         )
         
+        # 🎯 NOVO: ATIVAR PREMIUM IMEDIATAMENTE APÓS CONFIRMAÇÃO
+        if payment["subscription_type"] in ["premium_monthly", "premium_yearly"]:
+            # Calcular data de expiração
+            if payment["subscription_type"] == "premium_monthly":
+                expires_at = datetime.utcnow() + timedelta(days=30)
+            else:  # premium_yearly
+                expires_at = datetime.utcnow() + timedelta(days=365)
+            
+            # Ativar premium para o usuário
+            await db.users.update_one(
+                {"id": current_user.id},
+                {
+                    "$set": {
+                        "is_premium": True,
+                        "subscription_expires": expires_at,
+                        "subscription_type": payment["subscription_type"],
+                        "premium_activated_at": datetime.utcnow(),
+                        "has_specialist_consultation": True  # 🎯 ATIVAR CONSULTA ESPECIALIZADA
+                    }
+                }
+            )
+            
+            logger.info(f"✅ Premium ativado para usuário {current_user.id} até {expires_at}")
+        
         logger.info(f"Pagamento confirmado pelo usuário: {transaction_id}")
         
         return {
